@@ -3,9 +3,9 @@
 import re
 from xml.dom import minidom
 
-XML = '/home/comstock/Documents/Transformed_records_trim.xml'
+XML = '/home/comstock/Documents/Soudeikine.xml'
 CNT = 1
-target = open("sailing.html", 'w')
+target = open("Soudeikine.html", 'w')
 portfolio = open(XML, 'r')
 doc = minidom.parse(XML)
 element = doc.getElementsByTagName("imagelink")
@@ -33,9 +33,10 @@ for line in portfolio:
         line = re.sub("</imagelink.*\n","",line)
         line= re.sub("<group.subwork.image><imagelink>","",line)
         #print line
-        line2 = "<figure>\n<img src=\"" + line + "\" />\n"
+        #line2 = "<figure>\n<img src=\"" + line + "\" />\n"
+        line2 = "<figure>\n<a href=\"" + line + "?buttons=y \"target=\"_blank\"><img src=\"" + line + "\" /></a>\n"
         target.write(line2)
-        print line2
+        # print line2
     elif re.search(".*work.title>.*",line):
         line = portfolio.next()
         line = re.sub("<work.worktype.*","",line)
