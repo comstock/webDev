@@ -1,25 +1,33 @@
 #!/usr/bin/python
+## Take an XML VIA portfolio from Harvard's image catalog
+## and return an HTML page that includes displayed images
+## where the image links to a zoom-able interface to the image
+## and is captioned with the <title> from the catalog record
+## where caption-text links to catalog record
+## and is followed by a notation of the image pixel dimensions
+## for the largest available image stored in the Harvard Library's
+## preservation digital repository.
 import re
 import json
 import urllib2
 from xml.dom import minidom
 from urlparse import urlparse
 
-def catalog_record():
+def catalog_record(): # extract catalog record id
     via_id = doc.getElementsByTagName('via_id')[CNT]
     via_id = via_id.toxml()
     via_id = re.sub("<via_id>","",via_id)
     via_id = re.sub("</via_id>","",via_id)
     return via_id
     
-def image_link():
+def image_link(): # extract URN for image to build link
     imgLink = doc.getElementsByTagName('imagelink')[CNT]
     urn = imgLink.toxml()
     urn = re.sub("<imagelink>http://nrs.harvard.edu/","",urn)
     urn =re.sub("</imagelink>","",urn)
     return urn
 
-def pixel_dim(urn):
+def pixel_dim(urn): # extract size of largest available image
     webUrl  = urllib2.urlopen(NRS_STEM + urn)
     redir = webUrl.geturl()
     parsed = urlparse(redir)
@@ -39,6 +47,8 @@ def pixel_dim(urn):
 def caption():
     title = doc.getElementsByTagName('record')[CNT]
     title = title.toxml()
+    # turn record into single-line string to
+    # avoid having to deal with line returns
     title = re.sub("\n","",title)
     title = re.sub("<record>.*<work.title>.*<text>","",title); title = re.sub("</text>.*","",title)
     return title     
@@ -48,23 +58,24 @@ def main():
     # VIA Portfolio Source
     XML = "C:\\temp\portfolio\wilsonTransformed_records.xml"
     global CNT ; CNT = 0
+    # open HTML file for writing output
     target = open("20160409.html", 'w')
     portfolio = open(XML, 'r')
     global doc ; doc = minidom.parse(XML)
-    element = doc.getElementsByTagName("imagelink")
+    element = doc.getElementsByTagName("record")
     count = len(element)
     record_stem = "http://id.lib.harvard.edu/via/"
     record_tail = "/catalog"
     global ids_stem ; ids_stem = 'http://ids.lib.harvard.edu/ids/iiif/'
     global ids_stern ; ids_stern = '/info.json'
     global NRS_STEM ; NRS_STEM = "http://nrs.harvard.edu/"
+    # <title> of HTML page
     html_title = "VIA Images"
     # URN = "urn-3:ARB.JPLIB:695790"
 
     ## HTML CODE ##
     head = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n\
     <head>\n\
-    <!-- <title>Images from VIA </title>\n\ -->\
     <title>" + html_title + "</title>\n\
     <link rel=\"stylesheet\" href=\"http://www.w3.org/StyleSheets/Core/Traditional\" type=\"text/css\" />\n\
     </head>\n\
@@ -89,7 +100,7 @@ def main():
         </html>"
         
         target.write(body)
-        print "    wrote line for image " + str(CNT) + " of " + str(count) + "\n"
+        print "    wrote entry for image " + str(CNT + 1) + " of " + str(count) + "\n"
         
         CNT = CNT + 1
     
