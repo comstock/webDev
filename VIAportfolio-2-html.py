@@ -31,6 +31,7 @@ def image_link(): # extract URN for image to build link
 
 def pixel_dim(urn): # extract size of largest available image
     webUrl  = urllib2.urlopen(NRS_STEM + urn)
+    # The URN redirects to another URL. The following line picks up the URL we are redirected to.
     redir = webUrl.geturl()
     parsed = urlparse(redir)
     ID = parsed.path
