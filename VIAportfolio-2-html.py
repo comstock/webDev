@@ -3,10 +3,12 @@
 ## and return an HTML page that includes displayed images
 ## where the image links to a zoom-able interface to the image
 ## and is captioned with the <title> from the catalog record
-## where caption-text links to catalog record
-## and is followed by a notation of the image pixel dimensions
+## where caption-text links to catalog record and is
+## followed by a notation of the image pixel dimensions
 ## for the largest available image stored in the Harvard Library's
 ## preservation digital repository.
+##
+
 import re
 import json
 import urllib2
@@ -41,21 +43,39 @@ def pixel_dim(urn): # extract size of largest available image
     url = theJSON["@id"]
     url = re.sub("iiif","view",url)
     url = re.sub("http://ids.lib.harvard.edu/ids/view/","",url)
-    hw = "(" + str(theJSON["width"]) +" pixels wide x " + str(theJSON["height"]) + " pixels high)"    
+    hw = "(Full size image: " + str(theJSON["width"]) +" pixels wide x " + str(theJSON["height"]) + " pixels high)"    
     return hw
     
 def caption():
     title = doc.getElementsByTagName('record')[CNT]
     title = title.toxml()
+    date = title
+    creator = title
     # turn record into single-line string to
     # avoid having to deal with line returns
     title = re.sub("\n","",title)
+    date = re.sub("\n","",date)
+    creator = re.sub("\n","",creator)
+    
     title = re.sub("<record>.*<work.title>.*<text>","",title); title = re.sub("</text>.*","",title)
+    date = re.sub("<record>.*<work.date>","",date); date = re.sub("</work.date>.*","",date)
+    creator = re.sub("<record>.*<work.creator>\s*<name>","",creator) ;creator = re.sub("</name>.*","",creator)
+    
+    date = re.sub("-\d\d-\d\d","",date)
+   
+#    if date == re.search("\d\d\d\d-\d\d-\d\d",date):
+#        date = re.sub("-\d\d-\d\d","",date)
+#    else:
+#        date = date
+            
+    print "DATE: " + date
+    print "CREATOR: " + creator
+    title = title + " [" + date + "]<br />" + creator
     return title     
 
 def main():
     ## VARIABLES ##
-    # VIA Portfolio Source
+    # VIA Portfolio Sourcework.
     XML = "C:\\temp\portfolio\wilsonTransformed_records.xml"
     global CNT ; CNT = 0
     # open HTML file for writing output
@@ -69,6 +89,7 @@ def main():
     global ids_stem ; ids_stem = 'http://ids.lib.harvard.edu/ids/iiif/'
     global ids_stern ; ids_stern = '/info.json'
     global NRS_STEM ; NRS_STEM = "http://nrs.harvard.edu/"
+    #global creator # ; creator = "ERROR: No <work.creator><name> value found."
     # <title> of HTML page
     html_title = "VIA Images"
     # URN = "urn-3:ARB.JPLIB:695790"
