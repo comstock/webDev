@@ -59,7 +59,12 @@ def caption():
     
     title = re.sub("<record>.*<work.title>.*<text>","",title); title = re.sub("</text>.*","",title)
     date = re.sub("<record>.*<work.date>","",date); date = re.sub("</work.date>.*","",date)
-    creator = re.sub("<record>.*<work.creator>\s*<name>","",creator) ;creator = re.sub("</name>.*","",creator)
+    
+    # Only populate *creator* if the <work.creator>Name> value is located
+    if re.search("<record>.*<work.creator>\s*<name>",creator):
+        creator = re.sub("<record>.*<work.creator>\s*<name>","",creator) ;creator = re.sub("</name>.*","",creator)
+    else:
+        creator =""
     
     date = re.sub("-\d\d-\d\d","",date)
    
