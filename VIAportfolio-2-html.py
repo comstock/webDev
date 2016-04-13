@@ -67,25 +67,24 @@ def caption():
     else:
         creator =""
     
-    date = re.sub("-\d\d-\d\d","",date)
-   
-#    if date == re.search("\d\d\d\d-\d\d-\d\d",date):
-#        date = re.sub("-\d\d-\d\d","",date)
-#    else:
-#        date = date
-            
-    print "DATE: " + date
-    print "CREATOR: " + creator
-    title = title + " [" + date + "]<br />" + creator
+    if re.search("\d\d\d\d-\d\d-\d\d",date):
+        date = re.sub("-\d\d-\d\d","",date)
+      
+    print "DATE: " + date + "; " + "CREATOR: " + creator 
+
+    if creator != "":
+        title = title + " [" + date + "]<br />" + creator
+    else:
+        title = title + " [" + date + "]<br />"
     return title     
 
 def main():
     ## VARIABLES ##
     # VIA Portfolio Sourcework.
-    XML = "C:\\temp\portfolio\wilsonTransformed_records.xml"
+    XML = "C:\\temp\WardHouse\WardHouseTransformed_records.xml"
     global CNT ; CNT = 0
     # open HTML file for writing output
-    target = open("20160409.html", 'w')
+    target = open("20160412.html", 'w')
     portfolio = open(XML, 'r')
     global doc ; doc = minidom.parse(XML)
     element = doc.getElementsByTagName("record")
@@ -101,7 +100,10 @@ def main():
     # URN = "urn-3:ARB.JPLIB:695790"
 
     ## HTML CODE ##
-    head = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n\
+    head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
+    <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n\
+    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n\
+    <html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n\
     <head>\n\
     <title>" + html_title + "</title>\n\
     <link rel=\"stylesheet\" href=\"http://www.w3.org/StyleSheets/Core/Traditional\" type=\"text/css\" />\n\
@@ -119,16 +121,17 @@ def main():
         <figure>\n\
         <a href=\"http://nrs.harvard.edu/" + urn + "?buttons=y\" target=\"_blank\"><img src=\"http://nrs.harvard.edu/" + urn + "\" alt=\"" + urn + "\"/></a>\n\
         <figcaption>\n\
-        <a href=\"" + record_stem + via_id + record_tail + "\" target=\"_blank\">" + title + "</a><br />\n" + hw + "\
-        \n</figcaption>\n</figure>\n"
+        <a href=\"" + record_stem + via_id + record_tail + "\" target=\"_blank\">" + title + "</a><br />" + hw + "<br />\n\
+        </figcaption>\n\
+        </figure>\
+        \n\n"
     
         tail = "\
         </body>\
         </html>"
         
         target.write(body)
-        print "    wrote entry for image " + str(CNT + 1) + " of " + str(count) + "\n"
-        
+        print "    wrote entry for image " + str(CNT + 1) + " of " + str(count) + "\n"      
         CNT = CNT + 1
     
     target.write(tail)
