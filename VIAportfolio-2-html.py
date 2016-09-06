@@ -60,10 +60,8 @@ def pixel_dim(urn): # extract size of largest available image
         return hw
     except (RuntimeError, TypeError, NameError, IOError, OSError):
         print "HW ERROR"
-        hw = "failed to retrieve image dimensions from server. (sadface)"
+        hw = "Failed to retrieve image dimensions from server (sadface)."
         return hw
-    
-
     
 def caption():
     title = doc.getElementsByTagName('record')[CNT]
