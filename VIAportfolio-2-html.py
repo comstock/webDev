@@ -8,7 +8,8 @@
 ## for the largest available image stored in the Harvard Library's
 ## preservation digital repository.
 ##
-
+# -*- coding: utf-8 -*-
+import codecs
 import re
 import json
 import urllib2
@@ -16,40 +17,58 @@ from xml.dom import minidom
 from urlparse import urlparse
 
 def catalog_record(): # extract catalog record id
-    via_id = doc.getElementsByTagName('via_id')[CNT]
-    via_id = via_id.toxml()
-    via_id = re.sub("<via_id>","",via_id)
-    via_id = re.sub("</via_id>","",via_id)
-    return via_id
+    try:
+        via_id = doc.getElementsByTagName('via_id')[CNT]
+        via_id = via_id.toxml()
+        via_id = re.sub("<via_id>","",via_id)
+        via_id = re.sub("</via_id>","",via_id)
+        return via_id
+    except (RuntimeError, TypeError, NameError, IOError, OSError):
+        print "VIA ID ERROR"
+        via_id = "NONE"
+        return via_id
     
 def image_link(): # extract URN for image to build link
-    imgLink = doc.getElementsByTagName('imagelink')[CNT]
-    urn = imgLink.toxml()
-    urn = re.sub("<imagelink>http://nrs.harvard.edu/","",urn)
-    urn =re.sub("</imagelink>","",urn)
-    return urn
+    try:
+        imgLink = doc.getElementsByTagName('imagelink')[CNT]
+        urn = imgLink.toxml()
+        urn = re.sub("<imagelink>http://nrs.harvard.edu/","",urn)
+        urn =re.sub("</imagelink>","",urn)
+        return urn
+    except (RuntimeError, TypeError, NameError, IOError, OSError):
+        print "IMAGE LINK ERROR"
+        urn = "NONE"
+        return urn
 
 def pixel_dim(urn): # extract size of largest available image
-    webUrl  = urllib2.urlopen(NRS_STEM + urn)
-    # The URN redirects to another URL. The following line picks up the URL we are redirected to.
-    redir = webUrl.geturl()
-    parsed = urlparse(redir)
-    ID = parsed.path
-    ID = re.sub("\/ids\/view/","",ID)
+    try:
+        webUrl  = urllib2.urlopen(NRS_STEM + urn)
+        # The URN redirects to another URL. The following line picks up the URL we are redirected to.
+        redir = webUrl.geturl()
+        parsed = urlparse(redir)
+        ID = parsed.path
+        ID = re.sub("\/ids\/view/","",ID)
+        
+        JSONURL =  urllib2.urlopen(ids_stem + ID + ids_stern)
+        # print ids_stem + ID + ids_stern
+        data = JSONURL.read()
+        theJSON = json.loads(data)
+        url = theJSON["@id"]
+        url = re.sub("iiif","view",url)
+        url = re.sub("http://ids.lib.harvard.edu/ids/view/","",url)
+        hw = "(Full size image: " + str(theJSON["width"]) +" pixels wide x " + str(theJSON["height"]) + " pixels high)"    
+        return hw
+    except (RuntimeError, TypeError, NameError, IOError, OSError):
+        print "HW ERROR"
+        hw = "failed to retrieve image dimensions from server. (sadface)"
+        return hw
     
-    JSONURL =  urllib2.urlopen(ids_stem + ID + ids_stern)
-    # print ids_stem + ID + ids_stern
-    data = JSONURL.read()
-    theJSON = json.loads(data)
-    url = theJSON["@id"]
-    url = re.sub("iiif","view",url)
-    url = re.sub("http://ids.lib.harvard.edu/ids/view/","",url)
-    hw = "(Full size image: " + str(theJSON["width"]) +" pixels wide x " + str(theJSON["height"]) + " pixels high)"    
-    return hw
+
     
 def caption():
     title = doc.getElementsByTagName('record')[CNT]
     title = title.toxml()
+##    title = title.encode("utf-8")
     date = title
     creator = title
     # turn record into single-line string to
@@ -70,8 +89,8 @@ def caption():
     if re.search("\d\d\d\d-\d\d-\d\d",date):
         date = re.sub("-\d\d-\d\d","",date)
       
-    print "DATE: " + date + "; " + "CREATOR: " + creator 
-
+##    print "DATE: " + date + "; " + "CREATOR: " + creator 
+    print "DATE: " + date.encode("utf-8") + "; " + "CREATOR: " + creator.encode("utf-8") 
     if creator != "":
         title = title + " [" + date + "]<br />" + creator
     else:
@@ -81,14 +100,21 @@ def caption():
 def main():
     ## VARIABLES ##
     # VIA Portfolio Sourcework.
-    XML = "C:\\temp\WardHouse\WardHouseTransformed_records.xml"
+    XML = "/home/comstock/Documents/Transformed_records.xml"
     global CNT ; CNT = 0
     # open HTML file for writing output
-    target = open("20160412.html", 'w')
+    target = open("Welch_20160906.html", 'w')
     portfolio = open(XML, 'r')
     global doc ; doc = minidom.parse(XML)
     element = doc.getElementsByTagName("record")
     count = len(element)
+    
+    # To limit number of records returned, uncommment the following 4 lines.
+##    if count > 100:
+##        count = 100
+##    else:
+##        count = count
+    
     record_stem = "http://id.lib.harvard.edu/via/"
     record_tail = "/catalog"
     global ids_stem ; ids_stem = 'http://ids.lib.harvard.edu/ids/iiif/'
@@ -96,7 +122,7 @@ def main():
     global NRS_STEM ; NRS_STEM = "http://nrs.harvard.edu/"
     #global creator # ; creator = "ERROR: No <work.creator><name> value found."
     # <title> of HTML page
-    html_title = "VIA Images"
+    html_title = "VIA Images, SC Welch"
     # URN = "urn-3:ARB.JPLIB:695790"
 
     ## HTML CODE ##
@@ -125,6 +151,8 @@ def main():
         </figcaption>\n\
         </figure>\
         \n\n"
+        
+        body = body.encode("utf-8")
     
         tail = "\
         </body>\
