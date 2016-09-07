@@ -60,8 +60,10 @@ def pixel_dim(urn): # extract size of largest available image
         return hw
     except (RuntimeError, TypeError, NameError, IOError, OSError):
         print "HW ERROR"
-        hw = "Failed to retrieve image dimensions from server (sadface)."
+        hw = "failed to retrieve image dimensions from server. (sadface)"
         return hw
+    
+
     
 def caption():
     title = doc.getElementsByTagName('record')[CNT]
@@ -101,15 +103,16 @@ def main():
     XML = "/home/comstock/Documents/Transformed_records.xml"
     global CNT ; CNT = 0
     # open HTML file for writing output
-    target = open("Welch_20160906.html", 'w')
+    target = open("Welch_20160906-500.html", 'w')
     portfolio = open(XML, 'r')
     global doc ; doc = minidom.parse(XML)
     element = doc.getElementsByTagName("record")
     count = len(element)
     
-    # To limit number of records returned, uncommment the following 4 lines.
-##    if count > 100:
-##        count = 100
+    # To limit number of records returned, uncommment the following 5 lines.
+##    limit = 500
+##    if count > limit:
+##        count = limit
 ##    else:
 ##        count = count
     
