@@ -88,22 +88,27 @@ def caption():
     
     if re.search("\d\d\d\d-\d\d-\d\d",date):
         date = re.sub("-\d\d-\d\d","",date)
+        date = " [" + date + "]"
+    else:
+        date = ""
       
 ##    print "DATE: " + date + "; " + "CREATOR: " + creator 
     print "DATE: " + date.encode("utf-8") + "; " + "CREATOR: " + creator.encode("utf-8") 
     if creator != "":
-        title = title + " [" + date + "]<br />" + creator
+##        title = title + " [" + date + "]<br />" + creator
+        title = title + date + "<br />" + creator
     else:
-        title = title + " [" + date + "]<br />"
+##        title = title + " [" + date + "]<br />"
+        title = title + date + "<br />" 
     return title     
 
 def main():
     ## VARIABLES ##
     # VIA Portfolio Sourcework.
-    XML = "/home/comstock/Documents/Transformed_records.xml"
+    XML = "/home/Transformed_records.xml"
     global CNT ; CNT = 0
     # open HTML file for writing output
-    target = open("Welch_20160906-500.html", 'w')
+    target = open("politicalButtons.html", 'w')
     portfolio = open(XML, 'r')
     global doc ; doc = minidom.parse(XML)
     element = doc.getElementsByTagName("record")
